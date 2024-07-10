@@ -70,6 +70,9 @@ else:
     # Filter data
     raw_filtered = si.bandpass_filter(raw_good, freq_min=params_preproc['filter_lf'], freq_max=params_preproc['filter_hf'])
 
+    # Common Median Reference
+    raw_cmr = si.common_reference(raw_filtered, reference='global', operator='median')
+    
     # Reduce sample size
     start_frame = params_preproc['start_s'] * fs
     end_frame = params_preproc['end_s'] * fs
@@ -85,7 +88,7 @@ else:
     if end_frame < 0 or end_frame > num_samples:
         end_frame = num_samples
 
-    raw_sub = raw_filtered.frame_slice(start_frame=start_frame, end_frame=end_frame)
+    raw_sub = raw_cmr.frame_slice(start_frame=start_frame, end_frame=end_frame)
 
     raw_preproc = raw_sub
 
