@@ -1,0 +1,15 @@
+# Data
+data_folder: '/mnt/raid/atonin/mea/data/Padova/'
+biocam_folder: 'Chip1240220'
+biocam_file: 'Phase_00.brw'
+
+# Preprocessing
+filter_lf: 250
+filter_hf: 5000
+start_s: 0
+end_s: -1
+
+# Sorting
+sorter: 'spikingcircus2'
+# sorter_params:
+#   pre_scale: False
