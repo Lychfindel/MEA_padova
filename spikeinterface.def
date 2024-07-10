@@ -7,12 +7,23 @@ From: ubuntu:22.04
 %post
 	apt-get -y update
 	apt-get install -y python3-pip
+	apt-get install -y git
 
 	#export CONTAINER_HOME=/data
 	pip install --upgrade pip
 	pip install -r /data/requirements.txt
 
-	ulimit -n 4096 
+	# install spikeinterface from source
+	#cd /data
+	#git clone https://github.com/SpikeInterface/spikeinterface.git
+	#cd spikeinterface
+	#pip install .
+	
+	pip install git+https://github.com/SpikeInterface/spikeinterface.git
+
+	pip install git+https://github.com/NeuralEnsemble/python-neo.git
+	pip install git+https://github.com/SpikeInterface/probeinterface.git
+	
 	#chmod 777 $CONTAINER_HOME
 	
 %runscript

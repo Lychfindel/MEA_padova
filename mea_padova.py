@@ -165,73 +165,145 @@ else:
                             verbose=True,
                             **sorter_params)
 
-###############
-## Waveforms ##
-###############
-print(">>> WAVEFORMS <<<")
+# ###############
+# ## Waveforms ##
+# ###############
+# print(">>> WAVEFORMS <<<")
 
-params_wave = params['waveforms']
+# params_wave = params['waveforms']
 
-waveforms_folder = output_folder / "waveforms_dense"
-waveforms_curated_folder = output_folder / "waveforms_curated"
-print("Extract waveforms")
-we = si.extract_waveforms(raw_preproc, sorting,
-                            folder=waveforms_folder,
-                            sparse=True,
-                            ms_before=1.5, 
-                            ms_after=2.5)
+# waveforms_folder = output_folder / "waveforms_dense"
+# waveforms_curated_folder = output_folder / "waveforms_curated"
+# print("Extract waveforms")
+# we = si.extract_waveforms(raw_preproc, sorting,
+#                             folder=waveforms_folder,
+#                             sparse=True,
+#                             ms_before=1.5, 
+#                             ms_after=2.5)
 
-# Compute noise level
-print("Compute noise level")
-si.compute_noise_levels(we)
+# # Compute noise level
+# print("Compute noise level")
+# si.compute_noise_levels(we)
 
-# Compute Principal Component
-print("Compute Principal Component")
-si.compute_principal_components(we, n_components=3, mode="by_channel_local", whiten=True)
+# # Compute Principal Component
+# print("Compute Principal Component")
+# si.compute_principal_components(we, n_components=3, mode="by_channel_local", whiten=True)
+
+# # Compute Spike Amplitude
+# print("Compute Spike Amplitude")
+# si.compute_spike_amplitudes(we)
+
+# # Compute Unit and Spike locations
+# print("Compute Unit locations")
+# si.compute_unit_locations(we, method="monopolar_triangulation", load_if_exists=True)
+# print("Compute Spike locations")
+# si.compute_spike_locations(we, method="center_of_mass", load_if_exists=True)
+
+# # Template metrics
+# print("Compute template metrics")
+# si.compute_template_metrics(we)
+
+# # Quality metrics
+# print("Quality metrics")
+# qm_params = si.get_default_qm_params()
+# qm_params['isi_violation']['isi_threshold_ms'] = 1.1
+# print("'isi_threshold_ms': 1.1")
+# metric_names = si.get_quality_metric_list()
+# print(f"Quality metric list: {metric_names}")
+# print("Compute quality metrics")
+# qm = si.compute_quality_metrics(we, metric_names=metric_names, qm_params=qm_params)
+
+# # Automatic curation based on quality metrics
+# isi_violation_thresh = 0.5
+# amp_cutoff_thresh = 0.1
+
+# curation_query = f"amplitude_cutoff < {amp_cutoff_thresh} & isi_violation_ratio < {isi_violation_thresh}"
+
+# print(f"Curation query: {curation_query}")
+# keep_units = qm.query(curation_query)
+# keep_units_id = keep_units.index.values
+
+# sorting_auto = sorting.select_units(keep_units_id)
+# print(f"Number of units before curation: {len(sorting.get_unit_ids)}")
+# print(f"Number of units after curation: {len(sorting_auto.get_unit_ids)}")
+
+# we_curated = we.select_units(keep_units_id, new_folder=waveforms_curated_folder)
+
+######################
+## SORTING ANALYZER ##
+######################
+print(">>> SORTING ANALYZER <<<")
+
+analyzer_folder = output_folder / "analyzer.zarr"
+
+analyzer = si.create_sorting_analyzer(sorting=sorting, recording=raw_preproc, format="memory")
+print(analyzer)
+
+print("Compute random spikes")
+analyzer.compute(
+    "random_spikes",
+    method="uniform",
+    max_spikes_per_unit=500
+)
+
+print("Compute waveforms")
+analyzer.compute(
+    "waveforms",
+    ms_before=1.0,
+    ms_after=2.0
+)
+
+print("Compute templates")
+analyzer.compute(
+    "templates",
+    operators=["average", "median", "std"]
+)
+print("Noise level")
+analyzer.compute(
+    "noise_levels",
+    recording=raw_preproc
+)
+
+print("Principal component")
+analyzer.compute(
+    "principal_components", 
+    n_components=3, 
+    mode="by_channel_local"
+    )
 
 # Compute Spike Amplitude
 print("Compute Spike Amplitude")
-si.compute_spike_amplitudes(we)
+analyzer.compute(
+    "spike_amplitudes",
+    peak_sign="neg",
+    outputs="concatenated"
+)
 
 # Compute Unit and Spike locations
 print("Compute Unit locations")
-si.compute_unit_locations(we, method="monopolar_triangulation", load_if_exists=True)
+analyzer.compute(
+    "unit_locations",
+    method="monopolar_triangulation",
+)
+
 print("Compute Spike locations")
-si.compute_spike_locations(we, method="center_of_mass", load_if_exists=True)
+analyzer.compute(
+    "spike_locations",
+    method="center_of_mass"
+)
 
 # Template metrics
 print("Compute template metrics")
-si.compute_template_metrics(we)
+analyzer.compute("template_metrics")
 
-# Quality metrics
-print("Quality metrics")
-qm_params = si.get_default_qm_params()
-qm_params['isi_violation']['isi_threshold_ms'] = 1.1
-print("'isi_threshold_ms': 1.1")
-metric_names = si.get_quality_metric_list()
-print(f"Quality metric list: {metric_names}")
-print("Compute quality metrics")
-qm = si.compute_quality_metrics(we, metric_names=metric_names, qm_params=qm_params)
-
-# Automatic curation based on quality metrics
-isi_violation_thresh = 0.5
-amp_cutoff_thresh = 0.1
-
-curation_query = f"amplitude_cutoff < {amp_cutoff_thresh} & isi_violation_ratio < {isi_violation_thresh}"
-
-print(f"Curation query: {curation_query}")
-keep_units = qm.query(curation_query)
-keep_units_id = keep_units.index.values
-
-sorting_auto = sorting.select_units(keep_units_id)
-print(f"Number of units before curation: {len(sorting.get_unit_ids)}")
-print(f"Number of units after curation: {len(sorting_auto.get_unit_ids)}")
-
-we_curated = we.select_units(keep_units_id, new_folder=waveforms_curated_folder)
+print("Saving analyzer")
+analyzer.save_as(folder=analyzer_folder, format="zarr")
 
 ############
 ## EXPORT ##
 ############
+print(">>> EXPORT <<<")
+
 
 phy_folder = output_folder / f"phy_{sorter_name}"
 report_folder = output_folder / f"report_{sorter_name}"
