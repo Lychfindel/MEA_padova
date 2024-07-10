@@ -1,0 +1,18 @@
+BootStrap: library
+From: ubuntu:22.04
+
+%files
+	./requirements.txt /data/requirements.txt
+
+%post
+	apt-get -y update
+	apt-get install -y python3-pip
+
+	#export CONTAINER_HOME=/data
+	pip install --upgrade pip
+	pip install -r /data/requirements.txt
+
+	ulimit -n 4096 
+	#chmod 777 $CONTAINER_HOME
+	
+%runscript

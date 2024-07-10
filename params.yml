@@ -1,15 +1,30 @@
 # Data
-data_folder: '/mnt/raid/atonin/mea/data/Padova/'
+data_folder: 'data'
 biocam_folder: 'Chip1240220'
 biocam_file: 'Phase_00.brw'
+output_folder: 'output'
+
+# Global job arguments
+job_kwargs:
+  n_jobs: 12
+  chunk_duration: '1s'
 
 # Preprocessing
-filter_lf: 250
-filter_hf: 5000
-start_s: 0
-end_s: -1
+preproc:
+  load_existing_data: False
+  test_few_channels: False
+  filter_lf: 250
+  filter_hf: 9000
+  start_s: 0
+  end_s: -1
 
 # Sorting
-sorter: 'spikingcircus2'
+sorting:
+  load_existing_data: False
+  sorter: 'spykingcircus2'
 # sorter_params:
 #   pre_scale: False
+
+# Waveforms
+waveforms:
+  load_existing_data: False

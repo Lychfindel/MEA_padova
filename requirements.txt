@@ -2,3 +2,4 @@ spikeinterface[full]==0.100.8
 docker
 hdbscan
 pyyaml
+psutil
