@@ -12,6 +12,7 @@ job_kwargs:
 # Preprocessing
 preproc:
   load_existing_data: False
+  save_compressed: False
   test_few_channels: False
   filter_lf: 250
   filter_hf: 9000
