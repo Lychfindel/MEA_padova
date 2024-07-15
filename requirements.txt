@@ -3,3 +3,5 @@ docker
 hdbscan
 pyyaml
 psutil
+h5py
+numba
