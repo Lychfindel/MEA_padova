@@ -1,14 +1,15 @@
 #!/bin/bash
 
 #SBATCH --job-name Chip1240220
-#SBATCH --output output_%j.txt
-#SBATCH --error errors_%j.txt
+#SBATCH --output log/output_%j.txt
+#SBATCH --error log/errors_%j.txt
 #SBATCH --mail-user alessandro.tonin@hsancamillo.it
 #SBATCH --mail-type ALL
 #SBATCH
-#SBATCH --ntasks 2
+#SBATCH -c 32
+#SBATCH --ntasks 1
 #SBATCH --partition allgroups
-#SBATCH --mem 250G
+#SBATCH --mem 200G
 
 cd $SLURM_SUBMIT_DIR
 
