@@ -7,6 +7,7 @@ import numpy as np
 from pathlib import Path
 import yaml
 import numcodecs
+import herdingspikes as hs
 
 ################
 ## Parameters ##
@@ -147,6 +148,30 @@ sorter_folder = output_folder / f"sorter_{sorter_name}"
 if params_sort['load_existing_data'] and sorter_folder.exists():
     print(f"Loading saved sorted data from {sorter_folder}")
     sorting = si.read_sorter_folder(sorter_folder)
+elif sorter_name == "herdingspikes":
+    raw_preproc = raw_good
+
+    print("Run spike detection")
+    HSdet = hs.HSDetectionLightning(raw_preproc)
+    HSdet.DetectFromRaw()
+
+    print("Run spike clustering")
+    HScluster = hs.HSClustering(HSdet)
+    HScluster.ShapePCA()
+    HScluster.CombinedClustering(
+        alpha=4.5,
+        cluster_subset=None,
+        bandwidth=4.0,
+        bin_seeding=False,
+        min_bin_freq=4
+    )
+
+    print("Saving sorting")
+    spike_indexes = np.array(HScluster.spikes.t)
+    spike_labels = np.array(HScluster.spikes.cl)
+    sorting = si.NumpySorting.from_times_labels(spike_indexes, spike_labels, fs)
+    sorting.save_to_folder(sorter_folder, overwrite=True)
+
 else:
     # if requested update custom params
     sorter_params = si.get_default_sorter_params(sorter_name_or_class=sorter_name)

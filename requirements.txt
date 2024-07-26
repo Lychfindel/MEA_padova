@@ -5,3 +5,7 @@ pyyaml
 psutil
 h5py
 numba
+spikeinterface[full]>=0.101
+numpy
+cython
+herdingspikes>=0.4

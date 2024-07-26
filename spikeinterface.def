@@ -1,15 +1,11 @@
-BootStrap: library
-From: ubuntu:22.04
+BootStrap: docker
+From: python:3.12
 
 %files
 	./requirements.txt /data/requirements.txt
 
 %post
-	apt-get -y update
-	apt-get install -y python3-pip
-	apt-get install -y git
 
-	#export CONTAINER_HOME=/data
 	pip install --upgrade pip
 	pip install -r /data/requirements.txt
 
@@ -19,10 +15,10 @@ From: ubuntu:22.04
 	#cd spikeinterface
 	#pip install .
 	
-	pip install git+https://github.com/SpikeInterface/spikeinterface.git
+	# pip install git+https://github.com/SpikeInterface/spikeinterface.git
 
-	pip install git+https://github.com/NeuralEnsemble/python-neo.git
-	pip install git+https://github.com/SpikeInterface/probeinterface.git
+	# pip install git+https://github.com/NeuralEnsemble/python-neo.git
+	# pip install git+https://github.com/SpikeInterface/probeinterface.git
 	
 	#chmod 777 $CONTAINER_HOME
 	
