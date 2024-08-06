@@ -283,11 +283,11 @@ analyzer.compute(
     "templates",
     operators=["average", "median", "std"]
 )
-print("Noise level")
-analyzer.compute(
-    "noise_levels",
-    recording=raw_preproc
-)
+# print("Noise level")
+# analyzer.compute(
+#     "noise_levels",
+#     recording=raw_preproc
+# )
 
 print("Principal component")
 analyzer.compute(
